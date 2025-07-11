@@ -128,7 +128,7 @@ Matrix<float, 4, 3> ESKF::getQ_dtheta() {
     return Q_dtheta;
 }
 
-void ESKF::predictIMU(const Vector3f& a_m, const Vector3f& omega_m, const float dt, lTime stamp) {
+void ESKF::predictIMU(const Vector3f& a_m, const Vector3f& omega_m, const float dt) {
     // DCM of current state
     Matrix3f Rot = getDCM();
     // Accelerometer measurement
@@ -179,7 +179,7 @@ void ESKF::predictIMU(const Vector3f& a_m, const Vector3f& omega_m, const float 
 }
 
 
-void ESKF::measurePos(const Vector3f& pos_meas, const Matrix3f& pos_covariance,lTime stamp ,lTime now) {
+void ESKF::measurePos(const Vector3f& pos_meas, const Matrix3f& pos_covariance) {
     // delta measurement
     Vector3f delta_pos;
 
@@ -192,10 +192,10 @@ void ESKF::measurePos(const Vector3f& pos_meas, const Matrix3f& pos_covariance,l
     H.block<3, 3>(0, dPOS_IDX) = I_3;
 
     // Apply update
-    update_3D(delta_pos, pos_covariance, H, stamp, now);
+    update_3D(delta_pos, pos_covariance, H);
 }
 
-void ESKF::measureQuat(const Quaternionf& q_gb_meas, const Matrix3f& theta_covariance, lTime stamp ,lTime now) {
+void ESKF::measureQuat(const Quaternionf& q_gb_meas, const Matrix3f& theta_covariance) {
     // Transform the quaternion measurement to a measurement of delta_theta:
     // a rotation in the body frame from nominal to measured.
     // This is identical to the form of dtheta in the error_state,
@@ -213,15 +213,13 @@ void ESKF::measureQuat(const Quaternionf& q_gb_meas, const Matrix3f& theta_covar
     H.block<3, 3>(0, dTHETA_IDX) = I_3;
 
     // Apply update
-    update_3D(delta_theta, theta_covariance, H, stamp, now);
+    update_3D(delta_theta, theta_covariance, H);
 }
 
 void ESKF::update_3D(
         const Vector3f& delta_measurement,
         const Matrix3f& meas_covariance,
-        const Matrix<float, 3, dSTATE_SIZE>& H,
-        lTime stamp,
-        lTime now) {
+        const Matrix<float, 3, dSTATE_SIZE>& H) {
     //generate M matrix for time correction methods
 
     // Kalman gain

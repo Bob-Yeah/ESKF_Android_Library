@@ -73,11 +73,11 @@ public:
 
     // Called when there is a new measurment from the IMU.
     // dt is the integration time of this sample, nominally the IMU sample period
-    void predictIMU(const Eigen::Vector3f& a_m, const Eigen::Vector3f& omega_m, const float dt, lTime stamp);
+    void predictIMU(const Eigen::Vector3f& a_m, const Eigen::Vector3f& omega_m, const float dt);
 
     // Called when there is a new measurment from an absolute position reference.
     // Note that this has no body offset, i.e. it assumes exact observation of the center of the IMU.
-    void measurePos(const Eigen::Vector3f& pos_meas, const Eigen::Matrix3f& pos_covariance, lTime stamp, lTime now);
+    void measurePos(const Eigen::Vector3f& pos_meas, const Eigen::Matrix3f& pos_covariance);
 
     // Called when there is a new measurment from an absolute position reference.
     // The measurement is with respect to some location on the body that is not at the IMU center in general.
@@ -89,7 +89,7 @@ public:
 
     // Called when there is a new measurment from an absolute orientation reference.
     // The uncertianty is represented as the covariance of a rotation vector in the body frame
-    void measureQuat(const Eigen::Quaternionf& q_meas, const Eigen::Matrix3f& theta_covariance, lTime stamp, lTime now);
+    void measureQuat(const Eigen::Quaternionf& q_meas, const Eigen::Matrix3f& theta_covariance);
 
     Eigen::Matrix3f getDCM();
 
@@ -97,7 +97,7 @@ private:
     Eigen::Matrix<float, 4, 3> getQ_dtheta(); // eqn 280, page 62
     void update_3D(const Eigen::Vector3f& delta_measurement,
                    const Eigen::Matrix3f& meas_covariance,
-                   const Eigen::Matrix<float, 3, dSTATE_SIZE>& H, lTime stamp, lTime now);
+                   const Eigen::Matrix<float, 3, dSTATE_SIZE>& H);
     void injectErrorState(const Eigen::Matrix<float, dSTATE_SIZE, 1>& error_state);
 
 
