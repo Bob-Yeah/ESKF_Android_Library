@@ -73,7 +73,7 @@ public:
 
     // Called when there is a new measurment from the IMU.
     // dt is the integration time of this sample, nominally the IMU sample period
-    void predictIMU(const Eigen::Vector3f& a_m, const Eigen::Vector3f& omega_m, const float dt);
+    void predictIMU(const Eigen::Vector3f& a_m, const Eigen::Vector3f& omega_m, const double dt);
 
     // Called when there is a new measurment from an absolute position reference.
     // Note that this has no body offset, i.e. it assumes exact observation of the center of the IMU.

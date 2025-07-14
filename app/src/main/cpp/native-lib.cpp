@@ -2,7 +2,7 @@
 #include <string>
 #include "ESKF.h"
 #include <android/log.h>
-
+#include "TestClass.h"
 //#define EXPORT_API __declspec(dllexport)
 #define EXPORT_API __attribute__((visibility("default")))
 using namespace  Eigen;
@@ -77,7 +77,7 @@ extern "C"
                 ESKF::makeState(
                         Vector3f(initData->initPosX, initData->initPosY, initData->initPosZ), // init pos
                         Vector3f(initData->initVelX, initData->initVelY, initData->initVelZ), // init vel
-                        Quaternionf(initData->initQuatX,initData->initQuatY,initData->initQuatZ,initData->initQuatW), // init quaternion
+                        Quaternionf(initData->initQuatW,initData->initQuatX,initData->initQuatY,initData->initQuatZ), // init quaternion
                         Vector3f(initData->initAccBiasX,initData->initAccBiasY,initData->initAccBiasZ), // init accel bias
                         Vector3f(initData->initGyroBiasX,initData->initGyroBiasY,initData->initGyroBiasZ) // init gyro bias
                 ),
@@ -99,9 +99,9 @@ extern "C"
     EXPORT_API Vector3Data* GetPos(ESKF *eskf)
     {
         Eigen::Vector3f vec = eskf->getPos();
-        std::cout << "get pos called" <<std::endl;
-        __android_log_print(ANDROID_LOG_ERROR, "ESKFLib", "get pos called");
-        Vector3Data* data = new Vector3Data{vec.x(),vec.y(),1.055};
+//        std::cout << "get pos called" <<std::endl;
+//        __android_log_print(ANDROID_LOG_ERROR, "ESKFLib", "get pos called");
+        Vector3Data* data = new Vector3Data{vec.x(),vec.y(),vec.z()};
         return data;
     }
 
@@ -136,12 +136,12 @@ extern "C"
         delete ptr;
     }
 
-    EXPORT_API void PredictIMU(ESKF* eskf, Vector3Data a_m, Vector3Data omega_m, float dt)
+    EXPORT_API void PredictIMU(ESKF* eskf, Vector3Data a_m, Vector3Data omega_m, double dt)
     {
         Eigen::Vector3f imu_accel(a_m.x,a_m.y,a_m.z);
         Eigen::Vector3f imu_gyro(omega_m.x,omega_m.y,omega_m.z);
-        std::cout << "received accel:" << imu_accel.x() << "," << imu_accel.y() << "," << imu_accel.z() <<std::endl;
-        __android_log_print(ANDROID_LOG_DEBUG, "ESKFLib", "received accel:%.5f,%.5f,%.5f", imu_accel.x(),imu_accel.y(),imu_accel.z());
+//        std::cout << "received accel:" << imu_accel.x() << "," << imu_accel.y() << "," << imu_accel.z() <<std::endl;
+        __android_log_print(ANDROID_LOG_DEBUG, "ESKFLib", "received accel:%.5f,%.5f,%.5f @dt:%.5f", imu_accel.x(),imu_accel.y(),imu_accel.z(), dt);
         eskf->predictIMU(imu_accel,imu_gyro,dt);
     }
 
@@ -153,7 +153,7 @@ extern "C"
 
     EXPORT_API void MeasureQuat(ESKF* eskf, QuaternionData quat, float sigma_meas_quat)
     {
-        Eigen::Quaternionf q_gb_meas(quat.qx,quat.qy,quat.qz,quat.qw);
+        Eigen::Quaternionf q_gb_meas(quat.qw,quat.qx,quat.qy,quat.qz);
         eskf->measureQuat(q_gb_meas,SQ(sigma_meas_quat)*I_3);
     }
 
@@ -162,5 +162,21 @@ extern "C"
         __android_log_print(ANDROID_LOG_DEBUG, "ESKFLib", "TestDataInOut");
         Vector3Data newData {in.x,in.y,0};
         return newData;
+    }
+
+    EXPORT_API TestClass* CreateTestClass(Vector3Data inVec)
+    {
+        __android_log_print(ANDROID_LOG_DEBUG, "ESKFLib", "TestClass Create");
+        Eigen::Vector3f value_vector(inVec.x,inVec.y,inVec.z);
+        TestClass* testClass = new TestClass(value_vector);
+        return testClass;
+    }
+
+    EXPORT_API Vector3Data GetTestClassValue(TestClass* testClass)
+    {
+        __android_log_print(ANDROID_LOG_DEBUG, "ESKFLib", "TestClass GetValue");
+        Vector3f value = testClass->GetValue();
+        Vector3Data res {value.x(),value.y(),value.z()};
+        return res;
     }
 }

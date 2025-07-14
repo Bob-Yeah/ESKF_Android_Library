@@ -14,7 +14,7 @@ project("eskf_android_library")
 # Include Eigen Library
 include_directories(eigen)
 
-file(GLOB SOURCES "*.h" "*.cpp" "eigen/*" "eigen/src/*/*.h")
+file(GLOB SOURCES "ESKF.h" "ESKF.cpp" "lTime.h" "native-lib.cpp" "TestClass.h" "TestClass.cpp" "unrolledFPFt.h" "eigen/*" "eigen/src/*/*.h")
 
 # Creates and names a library, sets it as either STATIC
 # or SHARED, and provides the relative paths to its source code.

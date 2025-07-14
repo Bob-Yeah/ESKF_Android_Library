@@ -3,7 +3,7 @@
 //
 #include "ESKF.h"
 #include "unrolledFPFt.h"
-
+#include <android/log.h>
 #define SQ(x) (x*x)
 #define I_3 (Eigen::Matrix3f::Identity())
 #define I_dx (Eigen::Matrix<float, dSTATE_SIZE, dSTATE_SIZE>::Identity())
@@ -128,7 +128,7 @@ Matrix<float, 4, 3> ESKF::getQ_dtheta() {
     return Q_dtheta;
 }
 
-void ESKF::predictIMU(const Vector3f& a_m, const Vector3f& omega_m, const float dt) {
+void ESKF::predictIMU(const Vector3f& a_m, const Vector3f& omega_m, const double dt) {
     // DCM of current state
     Matrix3f Rot = getDCM();
     // Accelerometer measurement
@@ -145,7 +145,11 @@ void ESKF::predictIMU(const Vector3f& a_m, const Vector3f& omega_m, const float 
     nominalState_.block<3, 1>(POS_IDX, 0) += delta_pos;
     nominalState_.block<3, 1>(VEL_IDX, 0) += (acc_global + a_gravity_)*dt;
     nominalState_.block<4, 1>(QUAT_IDX, 0) = quatToHamilton(getQuat()*q_delta_theta).normalized();
+    __android_log_print(ANDROID_LOG_DEBUG, "ESKFLib", "delta pos:%.5f,%.5f,%.5f, dt:%.5f",
+                        delta_pos.x(), delta_pos.y(), delta_pos.z(), dt);
 
+    __android_log_print(ANDROID_LOG_DEBUG, "ESKFLib", "After pos:%.5f,%.5f,%.5f",
+                        nominalState_.block<3, 1>(POS_IDX, 0).x(), nominalState_.block<3, 1>(POS_IDX, 0).y(), nominalState_.block<3, 1>(POS_IDX, 0).z());
 
     // // Jacobian of the state transition (eqn 269, page 59)
     // // Update dynamic parts only
